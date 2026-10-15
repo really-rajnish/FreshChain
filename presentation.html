@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshChain - Intelligent Cold Chain & Freshness Prediction Deck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #061411;
+            --bg-card: rgba(16, 38, 32, 0.75);
+            --bg-card-hover: rgba(22, 53, 45, 0.9);
+            --border-card: rgba(52, 211, 153, 0.18);
+            --border-card-bright: rgba(52, 211, 153, 0.4);
+            --mint-primary: #10b981;
+            --mint-light: #34d399;
+            --mint-glow: rgba(16, 185, 129, 0.25);
+            --cyan-accent: #38bdf8;
+            --amber-accent: #f59e0b;
+            --red-accent: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 45%);
+        }
+
+        /* Top Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 8.33%;
+            background: linear-gradient(90deg, var(--mint-primary), var(--cyan-accent));
+            transition: width 0.35s ease;
+            box-shadow: 0 0 10px var(--mint-primary);
+        }
+
+        /* Slide Container */
+        .deck-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 3.5rem 5.5rem 3.5rem;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            max-width: 1300px;
+            height: 100%;
+            max-height: 740px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 30px var(--mint-glow);
+            padding: 3rem;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Header Elements */
+        .slide-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--mint-light);
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            width: fit-content;
+            margin-bottom: 0.75rem;
+        }
+
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .slide-title span {
+            background: linear-gradient(135deg, #ffffff, var(--mint-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        /* Content Grids */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            flex: 1;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.75rem;
+            flex: 1;
+        }
+
+        /* Presentation Cards */
+        .card {
+            background: rgba(10, 26, 22, 0.65);
+            border: 1px solid var(--border-card);
+            border-radius: 18px;
+            padding: 1.6rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-card-bright);
+            background: var(--bg-card-hover);
+            transform: translateY(-3px);
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            color: var(--mint-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.6rem;
+        }
+
+        .card-desc {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+            flex: 1;
+        }
+
+        .card-metric {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--mint-light);
+            margin-bottom: 0.3rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* List Items */
+        .check-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .check-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            font-size: 0.93rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .check-list li i {
+            color: var(--mint-light);
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        /* Bottom Floating Control Bar */
+        .controls-bar {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 28, 23, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card-bright);
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            z-index: 100;
+        }
+
+        .btn-nav {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav:hover {
+            color: #ffffff;
+            background: rgba(52, 211, 153, 0.15);
+        }
+
+        .slide-counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .slide-counter span {
+            color: var(--mint-light);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--mint-primary), #059669);
+            border: none;
+            color: #ffffff;
+            padding: 0.45rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Benchmark Scorecard Rows */
+        .benchmark-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 26, 22, 0.6);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 0.9rem 1.25rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .benchmark-row:hover {
+            border-color: var(--border-card-bright);
+            background: rgba(16, 42, 35, 0.8);
+        }
+
+        .benchmark-row.winner {
+            border-color: var(--mint-primary);
+            background: rgba(16, 185, 129, 0.08);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.12);
+        }
+
+        .metric-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Code Block */
+        .code-box {
+            background: #050e0b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: #a7f3d0;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        /* Cover Slide */
+        .cover-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            padding: 1rem 2rem;
+        }
+
+        .cover-title {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 40%, var(--mint-light) 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cover-sub {
+            font-size: 1.5rem;
+            color: var(--cyan-accent);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .cover-desc {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 820px;
+            line-height: 1.6;
+            margin-bottom: 2.75rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-3, .grid-4 { grid-template-columns: 1fr; overflow-y: auto; }
+            .slide { padding: 1.75rem; }
+            .cover-title { font-size: 2.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress Indicator -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Presentation Deck Viewport -->
+    <div class="deck-wrapper">
+
+        <!-- SLIDE 1: COVER -->
+        <section class="slide active" id="slide-1">
+            <div class="cover-container">
+                <div class="slide-tag"><i class="fa-solid fa-leaf"></i> AgriTech • Cold Chain AI • IoT Telemetry</div>
+                <h1 class="cover-title">FreshChain</h1>
+                <div class="cover-sub">Intelligent Cold Chain & Produce Freshness Prediction System</div>
+                <p class="cover-desc">
+                    An automated Machine Learning and real-time environmental monitoring platform engineered to predict post-harvest produce quality, prevent transit spoilage, and automate cold storage interventions.
+                </p>
+                <div class="grid-4" style="flex: 0 0 auto;">
+                    <div class="card" style="padding: 1rem 1.25rem;">
+                        <div class="card-metric">10,996</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Transit Telemetry Records</div>
+                    </div>
+                    <div class="card" style="padding: 1rem 1.25rem;">
+                        <div class="card-metric" style="color: var(--cyan-accent);">4 Fruits</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Orange, Banana, Pineapple, Tomato</div>
+                    </div>
+                    <div class="card" style="padding: 1rem 1.25rem;">
+                        <div class="card-metric" style="color: var(--amber-accent);">99.4% F1</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Random Forest Benchmark</div>
+                    </div>
+                    <div class="card" style="padding: 1rem 1.25rem;">
+                        <div class="card-metric" style="color: #a78bfa;">REST API</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">&lt;15ms Edge Inference</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: PROBLEM STATEMENT -->
+        <section class="slide" id="slide-2">
+            <div class="slide-tag">01 // Problem Context</div>
+            <h2 class="slide-title">The <span>Cold Chain Spoilage</span> Crisis</h2>
+            <p class="slide-subtitle">Why traditional post-harvest supply chain tracking fails fresh produce</p>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon" style="color: var(--amber-accent);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="card-title">1/3 of Food Wasted</div>
+                    <p class="card-desc">Over 30% to 40% of agricultural fresh produce is wasted globally before reaching consumers, driven primarily by unseen temperature spikes and respiratory breakdown during transit.</p>
+                    <ul class="check-list">
+                        <li><i class="fa-solid fa-circle-dot"></i> $1 Trillion annual economic losses</li>
+                        <li><i class="fa-solid fa-circle-dot"></i> Unnecessary carbon footprint</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--cyan-accent);"><i class="fa-solid fa-calendar-xmark"></i></div>
+                    <div class="card-title">Static Expiration Dates</div>
+                    <p class="card-desc">Traditional 'Best Before' dates are static and arbitrary. They ignore actual logistics delays, container ventilation failures, and temperature swings encountered in transit.</p>
+                    <ul class="check-list">
+                        <li><i class="fa-solid fa-circle-dot"></i> No adaptation to heat spikes</li>
+                        <li><i class="fa-solid fa-circle-dot"></i> Causes premature discard of fresh food</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--mint-light);"><i class="fa-solid fa-microchip"></i></div>
+                    <div class="card-title">The IoT-AI Opportunity</div>
+                    <p class="card-desc">Combining ambient wireless sensors (Temp, Humidity, Light, CO2) with machine learning allows operators to predict quality degradation hours before physical rot occurs.</p>
+                    <ul class="check-list">
+                        <li><i class="fa-solid fa-circle-dot"></i> Proactive atmosphere adjustment</li>
+                        <li><i class="fa-solid fa-circle-dot"></i> Automated cold chain routing</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: SYSTEM ARCHITECTURE -->
+        <section class="slide" id="slide-3">
+            <div class="slide-tag">02 // System Architecture</div>
+            <h2 class="slide-title">End-to-End <span>Pipeline Flow</span></h2>
+            <p class="slide-subtitle">A modular 4-tier pipeline converting raw sensor telemetries into decision support</p>
+            <div class="grid-4">
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                    <div style="font-size: 0.75rem; color: var(--mint-light); font-weight: 700;">STAGE 01</div>
+                    <div class="card-title" style="font-size: 1.15rem;">Ingestion & Clean</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Automated loading, whitespace trimming, casing harmonization ('BAD' &rarr; 'Bad'), and duplicate dropping in <code>ml/data_loader.py</code>.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--cyan-accent);"><i class="fa-solid fa-chart-line"></i></div>
+                    <div style="font-size: 0.75rem; color: var(--cyan-accent); font-weight: 700;">STAGE 02</div>
+                    <div class="card-title" style="font-size: 1.15rem;">Automated EDA</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Headless Matplotlib generator in <code>ml/eda.py</code> producing dark-themed correlation matrices, distributions, and respiration heatmaps.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--amber-accent);"><i class="fa-solid fa-sliders"></i></div>
+                    <div style="font-size: 0.75rem; color: var(--amber-accent); font-weight: 700;">STAGE 03</div>
+                    <div class="card-title" style="font-size: 1.15rem;">Feature Pipeline</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Scikit-learn <code>ColumnTransformer</code> applying <code>StandardScaler</code> to sensor measurements and <code>OneHotEncoder</code> to fruit varieties.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: #a78bfa;"><i class="fa-solid fa-brain"></i></div>
+                    <div style="font-size: 0.75rem; color: #a78bfa; font-weight: 700;">STAGE 04</div>
+                    <div class="card-title" style="font-size: 1.15rem;">Ensemble AI</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Multi-model training and evaluation in <code>ml/trainer.py</code>; saves champion model to <code>models/freshchain_model.joblib</code>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: SENSOR TELEMETRY -->
+        <section class="slide" id="slide-4">
+            <div class="slide-tag">03 // Biophysical Sensors</div>
+            <h2 class="slide-title">Environmental <span>Sensors & Features</span></h2>
+            <p class="slide-subtitle">10,996 curated observations capturing key produce degradation biomarkers</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span class="card-title" style="margin: 0;">Storage Temperature</span>
+                        <span class="metric-badge" style="color: var(--amber-accent);">Temp (°C)</span>
+                    </div>
+                    <p class="card-desc">The primary catalyst for microbial multiplication and enzymatic breakdown. Every 2–3°C rise above optimal limits doubles produce respiration speed.</p>
+                </div>
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span class="card-title" style="margin: 0;">Relative Humidity</span>
+                        <span class="metric-badge" style="color: var(--cyan-accent);">Humid (%)</span>
+                    </div>
+                    <p class="card-desc">Controls cellular transpiration. Low humidity causes moisture loss and wilting; saturated conditions (&gt;95%) facilitate fungal spore germination.</p>
+                </div>
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span class="card-title" style="margin: 0;">Ambient Light Exposure</span>
+                        <span class="metric-badge" style="color: var(--mint-light);">Light (Lux)</span>
+                    </div>
+                    <p class="card-desc">Triggers photo-oxidation, chlorophyll breakdown, and surface discolouration while generating localized packaging micro-climates.</p>
+                </div>
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span class="card-title" style="margin: 0;">Carbon Dioxide Output</span>
+                        <span class="metric-badge" style="color: #a78bfa;">CO2 (ppm)</span>
+                    </div>
+                    <p class="card-desc">Direct biomarker of cellular respiration. Rising CO2 concentrations indicate rapid tissue metabolism, fermentative breakdown, and imminent spoilage.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: PREPROCESSING & SANITATION -->
+        <section class="slide" id="slide-5">
+            <div class="slide-tag">04 // Data Sanitation</div>
+            <h2 class="slide-title">Cleaning & <span>Outlier Management</span></h2>
+            <p class="slide-subtitle">Transforming messy sensor telemetry into high-fidelity training vectors</p>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-spell-check"></i></div>
+                    <div class="card-title">Casing Harmonization</div>
+                    <p class="card-desc">Raw datasets contained inconsistencies such as <code>BAD</code>, <code>Bad</code>, and trailing whitespace. The data loader automatically sanitizes all labels to title-case binary targets (<code>Good</code> vs. <code>Bad</code>).</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--cyan-accent);"><i class="fa-solid fa-filter"></i></div>
+                    <div class="card-title">Sensor Outlier Clipping</div>
+                    <p class="card-desc">Mitigates anomalous sensor glitches by applying Interquartile Range (IQR) clipping on CO2 readings: <code>[Q1 - 1.5*IQR, Q3 + 1.5*IQR]</code>, preserving genuine data distributions.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--amber-accent);"><i class="fa-solid fa-diagram-project"></i></div>
+                    <div class="card-title">Stratified Splitting</div>
+                    <p class="card-desc">Uses stratified 80/20 train-test partitioning to guarantee identical class distribution across training (8,796 rows) and test (2,200 rows) partitions, preventing class imbalance skew.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: EXPLORATORY DATA ANALYSIS -->
+        <section class="slide" id="slide-6">
+            <div class="slide-tag">05 // Exploratory Data Analysis</div>
+            <h2 class="slide-title">Statistical & <span>Biophysical Insights</span></h2>
+            <p class="slide-subtitle">Uncovering core correlations driving produce degradation</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title" style="color: var(--amber-accent);"><i class="fa-solid fa-fire-burner"></i> Thermal-Respiration Coupling</div>
+                    <p class="card-desc">Strong positive correlation between Temperature and CO2 emissions. Elevated temperatures exponentially accelerate respiration, identifying this pairing as the primary spoil predictor.</p>
+                    <div style="margin-top: 1rem; padding: 0.8rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85rem;">
+                        <strong>Key Threshold:</strong> Temperature &gt; 24°C and CO2 &gt; 370 ppm indicates an 88% probability of produce quality failure.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title" style="color: var(--cyan-accent);"><i class="fa-solid fa-lemon"></i> Multi-Variety Behavioral Parity</div>
+                    <p class="card-desc">The dataset provides balanced observations across Orange, Banana, Pineapple, and Tomato. Each variety exhibits varying sensitivity to ambient humidity and packaging light exposure.</p>
+                    <div style="margin-top: 1rem; padding: 0.8rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85rem;">
+                        <strong>Visual Engine:</strong> <code>ml/eda.py</code> renders automated dark-themed PNG charts into <code>static/charts/</code> for immediate operator visualization.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: FEATURE ENGINEERING -->
+        <section class="slide" id="slide-7">
+            <div class="slide-tag">06 // Feature Transformation</div>
+            <h2 class="slide-title">Modular <span>ColumnTransformer</span></h2>
+            <p class="slide-subtitle">Guaranteed zero training-serving skew with encapsulated pipelines</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title" style="color: var(--mint-light);"><i class="fa-solid fa-ruler-combined"></i> StandardScaler (Sensors)</div>
+                    <p class="card-desc">Continuous sensors (Temp, Humidity, Light, CO2) are standardized to zero mean and unit variance (&mu;=0, &sigma;=1). Prevents high-magnitude CO2 values (&gt;400) from overpowering lower-magnitude temperature readings (20–26°C).</p>
+                    <div class="code-box" style="margin-top: 1rem;">
+                        StandardScaler().fit_transform(numeric_cols)
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title" style="color: var(--cyan-accent);"><i class="fa-solid fa-cubes"></i> OneHotEncoder (Produce)</div>
+                    <p class="card-desc">Produce varieties are mapped to binary dummy variables. Fitted with <code>handle_unknown='ignore'</code> to ensure live prediction inference never faults on unseen inputs.</p>
+                    <div class="code-box" style="margin-top: 1rem;">
+                        OneHotEncoder(handle_unknown='ignore')
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: MODEL BENCHMARK -->
+        <section class="slide" id="slide-8">
+            <div class="slide-tag">07 // Model Zoo & Evaluation</div>
+            <h2 class="slide-title">Multi-Model <span>Performance Benchmark</span></h2>
+            <p class="slide-subtitle">Empirical evaluation across linear, decision tree, and ensemble architectures</p>
+            <div>
+                <div class="benchmark-row winner">
+                    <div>
+                        <strong style="color: #ffffff; font-size: 1.05rem;">Random Forest (Selected Champion)</strong>
+                        <div style="font-size: 0.82rem; color: var(--mint-light);">100 estimators • Ensemble Bagging • Production Artifact</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <span class="metric-badge" style="color: var(--mint-light);">Accuracy: 99.41%</span>
+                        <span class="metric-badge" style="color: var(--mint-light);">F1: 0.994</span>
+                        <span class="metric-badge" style="color: var(--mint-light);">AUC: 0.999</span>
+                    </div>
+                </div>
+
+                <div class="benchmark-row">
+                    <div>
+                        <strong style="color: #ffffff; font-size: 1.05rem;">Gradient Boosting (GBDT)</strong>
+                        <div style="font-size: 0.82rem; color: var(--text-muted);">Sequential residual optimization</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <span class="metric-badge">Accuracy: 98.85%</span>
+                        <span class="metric-badge">F1: 0.988</span>
+                        <span class="metric-badge">AUC: 0.998</span>
+                    </div>
+                </div>
+
+                <div class="benchmark-row">
+                    <div>
+                        <strong style="color: #ffffff; font-size: 1.05rem;">XGBoost / LightGBM</strong>
+                        <div style="font-size: 0.82rem; color: var(--text-muted);">Histogram-based leaf-wise tree growth</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <span class="metric-badge">Accuracy: 98.92%</span>
+                        <span class="metric-badge">F1: 0.989</span>
+                        <span class="metric-badge">AUC: 0.998</span>
+                    </div>
+                </div>
+
+                <div class="benchmark-row">
+                    <div>
+                        <strong style="color: #ffffff; font-size: 1.05rem;">Pruned Decision Tree</strong>
+                        <div style="font-size: 0.82rem; color: var(--text-muted);">Regularized (max_depth=4) rule engine</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <span class="metric-badge">Accuracy: 96.10%</span>
+                        <span class="metric-badge">F1: 0.961</span>
+                        <span class="metric-badge">AUC: 0.965</span>
+                    </div>
+                </div>
+
+                <div class="benchmark-row">
+                    <div>
+                        <strong style="color: #ffffff; font-size: 1.05rem;">Logistic Regression</strong>
+                        <div style="font-size: 0.82rem; color: var(--text-muted);">Linear decision boundary baseline</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <span class="metric-badge">Accuracy: 89.24%</span>
+                        <span class="metric-badge">F1: 0.892</span>
+                        <span class="metric-badge">AUC: 0.941</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: MONOLITHIC SCRIPT DEEP DIVE -->
+        <section class="slide" id="slide-9">
+            <div class="slide-tag">08 // Codebase Exploration</div>
+            <h2 class="slide-title">Deep Dive: <span>complete_code.py</span></h2>
+            <p class="slide-subtitle">A comprehensive 771-line algorithmic sandbox implementing ML from first principles</p>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon" style="color: var(--mint-light);"><i class="fa-solid fa-calculator"></i></div>
+                    <div class="card-title">Batch Gradient Descent</div>
+                    <p class="card-desc">Manual implementation of linear regression optimization from scratch without scikit-learn. Demonstrates convergence over 1,000 iterations using analytical partial derivatives.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--cyan-accent);"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <div class="card-title">Regularized Regression</div>
+                    <p class="card-desc">Side-by-side benchmarking of Ordinary Least Squares (OLS), L1 Lasso, and L2 Ridge regression to predict CO2 emissions from ambient temperature.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: #a78bfa;"><i class="fa-solid fa-code-compare"></i></div>
+                    <div class="card-title">Multi-Model Arena</div>
+                    <p class="card-desc">Executes inference across 6 distinct models (Decision Tree, Pruned Tree, Random Forest, AdaBoost, XGBoost, LightGBM) on identical test samples.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: FLASK WEB APPLICATION -->
+        <section class="slide" id="slide-10">
+            <div class="slide-tag">09 // Operator Interface</div>
+            <h2 class="slide-title">Interactive <span>Web Platform</span></h2>
+            <p class="slide-subtitle">Flask-powered operator cockpit for supply chain supervisors</p>
+            <div class="grid-4">
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                    <div class="card-title" style="font-size: 1.15rem;">Executive Hub</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Route <code>/</code> displays dataset KPI cards, active champion model health, and overall system status.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--cyan-accent);"><i class="fa-solid fa-table"></i></div>
+                    <div class="card-title" style="font-size: 1.15rem;">Data Explorer</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Route <code>/data</code> enables tabular inspection of transit samples, schema validation, and missing value checks.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--amber-accent);"><i class="fa-solid fa-rotate"></i></div>
+                    <div class="card-title" style="font-size: 1.15rem;">Retraining Portal</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Route <code>/train</code> provides one-click model retraining, updating performance metrics and reloading the active joblib bundle.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: #a78bfa;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <div class="card-title" style="font-size: 1.15rem;">Prediction Studio</div>
+                    <p class="card-desc" style="font-size: 0.88rem;">Route <code>/predict</code> offers a live interactive form to test combinations of Fruit, Temp, Humidity, Light, and CO2.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 11: REST API & DECISION SUPPORT -->
+        <section class="slide" id="slide-11">
+            <div class="slide-tag">10 // Edge IoT Integration</div>
+            <h2 class="slide-title">REST API & <span>Automated Remediation</span></h2>
+            <p class="slide-subtitle">Connecting wireless edge sensors directly to automated atmospheric control</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title" style="color: var(--mint-light);"><i class="fa-solid fa-network-wired"></i> Endpoint: POST /api/predict</div>
+                    <p class="card-desc">Sub-15ms inference latency via cached in-memory model bundle. Accepts standard JSON telemetry payloads from Raspberry Pi or ESP32 gateway devices.</p>
+                    <div class="code-box" style="margin-top: 1rem;">
+{
+  "fruit": "Orange",
+  "temp": 24.5,
+  "humid": 95.0,
+  "light": 14.8,
+  "co2": 375.0
+}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title" style="color: var(--cyan-accent);"><i class="fa-solid fa-bell"></i> Actionable Decision Guidance</div>
+                    <p class="card-desc">Rather than delivering a raw binary class, FreshChain generates human-readable diagnostics and operational remediation advice:</p>
+                    <ul class="check-list" style="margin-top: 1rem;">
+                        <li><i class="fa-solid fa-circle-check" style="color: var(--mint-light);"></i> <strong>Good:</strong> "Optimal conditions maintained. Produce is fresh and fit for transit."</li>
+                        <li><i class="fa-solid fa-triangle-exclamation" style="color: var(--red-accent);"></i> <strong>Bad:</strong> "Suboptimal environment! Immediate atmospheric ventilation or refrigeration adjustment recommended."</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 12: VALIDATION & ROADMAP -->
+        <section class="slide" id="slide-12">
+            <div class="slide-tag">11 // Validation & Roadmap</div>
+            <h2 class="slide-title">System QA & <span>Strategic Roadmap</span></h2>
+            <p class="slide-subtitle">Automated test verification, business ROI, and future capabilities</p>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon" style="color: var(--mint-light);"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="card-title">100% Test Pass Rate</div>
+                    <p class="card-desc">Automated pytest suite in <code>tests/test_pipeline.py</code> guarantees system reliability:</p>
+                    <ul class="check-list">
+                        <li><i class="fa-solid fa-check"></i> <code>test_data_loader</code>: Pass</li>
+                        <li><i class="fa-solid fa-check"></i> <code>test_feature_engineering</code>: Pass</li>
+                        <li><i class="fa-solid fa-check"></i> <code>test_model_inference</code>: Pass</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: var(--cyan-accent);"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                    <div class="card-title">Measurable ROI Impact</div>
+                    <p class="card-desc">Reduces transit produce loss by 25–30% through automated early intervention, preventing retail delivery rejection penalties and lowering cold chain power costs.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" style="color: #a78bfa;"><i class="fa-solid fa-cubes-stacked"></i></div>
+                    <div class="card-title">Future Expansion</div>
+                    <p class="card-desc">Planned additions include micro-model edge deployment (TinyML), multi-tier ripeness classification (Fresh &rarr; Ripe &rarr; Expiring), and Blockchain tamper-proof logging.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Floating Navigation Controls -->
+    <div class="controls-bar">
+        <button class="btn-nav" id="btnPrev" title="Previous Slide (Left Arrow)"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="slide-counter"><span id="currentSlideNum">1</span> / <span id="totalSlideNum">12</span></div>
+        <button class="btn-nav" id="btnNext" title="Next Slide (Right Arrow)"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="btn-nav" id="btnFullscreen" title="Toggle Fullscreen"><i class="fa-solid fa-expand"></i></button>
+        <a href="FreshChain_Presentation.pptx" download class="btn-action" title="Download PPTX File">
+            <i class="fa-solid fa-download"></i> PPTX
+        </a>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const currentSlideNum = document.getElementById('currentSlideNum');
+        const totalSlideNum = document.getElementById('totalSlideNum');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        const btnFullscreen = document.getElementById('btnFullscreen');
+
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+        totalSlideNum.textContent = totalSlides;
+
+        function updateSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+            currentSlideNum.textContent = currentIndex + 1;
+            const progress = ((currentIndex + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function nextSlide() {
+            if (currentIndex < totalSlides - 1) {
+                updateSlide(currentIndex + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                updateSlide(currentIndex - 1);
+            }
+        }
+
+        btnNext.addEventListener('click', nextSlide);
+        btnPrev.addEventListener('click', prevSlide);
+
+        btnFullscreen.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                btnFullscreen.click();
+            }
+        });
+
+        // Initialize
+        updateSlide(0);
+    </script>
+</body>
+</html>

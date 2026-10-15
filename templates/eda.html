@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% set active_page = "eda" %}
+
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 0.5rem;"><i class="fa-solid fa-chart-pie" style="color: #3b82f6;"></i> Exploratory Data Analysis & Visualizations</h1>
+        <p style="color: var(--text-muted);">Visual distributions and statistical patterns rendered via <code>ml/eda.py</code>.</p>
+    </div>
+    <form action="{{ url_for('regenerate_eda') }}" method="POST">
+        <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-arrows-rotate"></i> Regenerate Charts</button>
+    </form>
+</div>
+
+<!-- Insights summary cards -->
+<div class="grid-3" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <span class="stat-label">Good Quality Ratio</span>
+        <span class="stat-value" style="color: #10b981;">{{ insights.good_pct }}%</span>
+        <span class="stat-sub">Supply grade quality</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Degraded/Bad Ratio</span>
+        <span class="stat-value" style="color: #ef4444;">{{ insights.bad_pct }}%</span>
+        <span class="stat-sub">Failed freshness threshold</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Primary Degrader</span>
+        <span class="stat-value" style="font-size: 1.5rem; color: #f59e0b;">CO2 & Light</span>
+        <span class="stat-sub">Highest correlation with quality</span>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div class="grid-2" style="margin-bottom: 2rem;">
+    <div class="chart-card">
+        <h3 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;"><i class="fa-solid fa-chart-bar" style="color: #10b981;"></i> Produce Quality Class Balance</h3>
+        <img src="{{ url_for('static', filename='charts/class_distribution.png') }}" alt="Class Distribution">
+    </div>
+
+    <div class="chart-card">
+        <h3 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;"><i class="fa-solid fa-apple-whole" style="color: #3b82f6;"></i> Variety Frequency</h3>
+        <img src="{{ url_for('static', filename='charts/fruit_distribution.png') }}" alt="Fruit Distribution">
+    </div>
+
+    <div class="chart-card">
+        <h3 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;"><i class="fa-solid fa-scale-balanced" style="color: #8b5cf6;"></i> Variety vs Quality Outcome</h3>
+        <img src="{{ url_for('static', filename='charts/fruit_vs_quality.png') }}" alt="Fruit vs Quality">
+    </div>
+
+    <div class="chart-card">
+        <h3 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;"><i class="fa-solid fa-fire-flame-curved" style="color: #f59e0b;"></i> Feature Correlation Matrix</h3>
+        <img src="{{ url_for('static', filename='charts/correlation_heatmap.png') }}" alt="Correlation Heatmap">
+    </div>
+</div>
+
+<div class="chart-card" style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;"><i class="fa-solid fa-chart-line" style="color: #10b981;"></i> Environmental Condition Ranges (Boxplots by Freshness Class)</h3>
+    <img src="{{ url_for('static', filename='charts/environmental_distributions.png') }}" alt="Environmental Distributions">
+</div>
+{% endblock %}

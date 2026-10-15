@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% set active_page = "train" %}
+
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 0.5rem;"><i class="fa-solid fa-brain" style="color: #10b981;"></i> Model Training & Benchmarking</h1>
+        <p style="color: var(--text-muted);">Multi-algorithm training, evaluation, and pipeline serialization in <code>ml/trainer.py</code>.</p>
+    </div>
+    <form action="{{ url_for('retrain_model') }}" method="POST">
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-play"></i> Train & Benchmark Models</button>
+    </form>
+</div>
+
+<!-- Active Model Banner -->
+<div class="card" style="margin-bottom: 2rem; border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(17, 24, 39, 0.8) 100%);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <span class="badge badge-good" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-crown"></i> Active Production Model</span>
+            <h2 style="font-size: 1.75rem; font-weight: 800;">{{ model_bundle.best_model_name }}</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Serialized to <code>models/freshchain_model.joblib</code> for sub-millisecond inference.</p>
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+            <div style="text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Accuracy</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: #10b981; font-family: var(--font-mono);">
+                    {{ (model_bundle.metrics.accuracy * 100)|round(2) }}%
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">F1-Score</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: #3b82f6; font-family: var(--font-mono);">
+                    {{ (model_bundle.metrics.f1_score * 100)|round(2) }}%
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">ROC-AUC</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: #8b5cf6; font-family: var(--font-mono);">
+                    {{ (model_bundle.metrics.roc_auc * 100)|round(2) if model_bundle.metrics.roc_auc else 'N/A' }}%
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison Table of Candidate Models -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h2 class="card-title"><i class="fa-solid fa-chart-simple"></i> Model Benchmark Comparison</h2>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1 Score</th>
+                    <th>ROC-AUC</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, res in model_bundle.all_results.items() %}
+                    <tr {% if name == model_bundle.best_model_name %}style="background: rgba(16, 185, 129, 0.06); font-weight: 600;"{% endif %}>
+                        <td>
+                            <strong>{{ name }}</strong>
+                            {% if name == model_bundle.best_model_name %}
+                                <span class="badge badge-good" style="margin-left: 0.5rem;">Selected</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-family: var(--font-mono);">{{ (res.accuracy * 100)|round(2) }}%</td>
+                        <td style="font-family: var(--font-mono);">{{ (res.precision * 100)|round(2) }}%</td>
+                        <td style="font-family: var(--font-mono);">{{ (res.recall * 100)|round(2) }}%</td>
+                        <td style="font-family: var(--font-mono); color: #10b981;">{{ (res.f1_score * 100)|round(2) }}%</td>
+                        <td style="font-family: var(--font-mono);">{{ (res.roc_auc * 100)|round(2) if res.roc_auc else 'N/A' }}%</td>
+                        <td>
+                            {% if name == model_bundle.best_model_name %}
+                                <span class="badge badge-good"><i class="fa-solid fa-check"></i> Deployed</span>
+                            {% else %}
+                                <span class="badge badge-blue">Evaluated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

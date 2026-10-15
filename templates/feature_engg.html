@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% set active_page = "feature" %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 0.5rem;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #8b5cf6;"></i> Feature Engineering & Preprocessing</h1>
+    <p style="color: var(--text-muted);">Inspection of transformations, encodings, and scaling pipelines defined in <code>ml/feature_engg.py</code>.</p>
+</div>
+
+<div class="grid-3" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <span class="stat-label">Raw Features</span>
+        <span class="stat-value">{{ feature_info.num_features_before }}</span>
+        <span class="stat-sub">1 Categorical + 4 Continuous</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Transformed Features</span>
+        <span class="stat-value" style="color: #8b5cf6;">{{ feature_info.num_features_after }}</span>
+        <span class="stat-sub">Expanded with One-Hot Columns</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Scaler Applied</span>
+        <span class="stat-value" style="font-size: 1.25rem; color: #10b981;">StandardScaler</span>
+        <span class="stat-sub">Z-Score Normalization (μ=0, σ=1)</span>
+    </div>
+</div>
+
+<!-- Architecture Pipeline Detail -->
+<div class="grid-2" style="margin-bottom: 2rem;">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fa-solid fa-code-fork" style="color: #3b82f6;"></i> Preprocessing Pipeline Architecture</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature Set</th>
+                        <th>Transformation Method</th>
+                        <th>Output Dimension</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Fruit</strong></td>
+                        <td><code>OneHotEncoder(handle_unknown='ignore')</code></td>
+                        <td>4 binary columns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Temp, Humid, Light, CO2</strong></td>
+                        <td><code>StandardScaler()</code></td>
+                        <td>4 normalized columns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Class (Target)</strong></td>
+                        <td>Binary Mapping (<code>Good: 1, Bad: 0</code>)</td>
+                        <td>1 target vector</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fa-solid fa-list-check" style="color: #10b981;"></i> Transformed Feature Matrix Columns</h2>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">The final tensor fed into classifier models contains:</p>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            {% for name in feature_info.encoded_feature_names %}
+                <span class="badge badge-blue" style="font-size: 0.85rem; padding: 0.4rem 0.8rem; font-family: var(--font-mono);">
+                    {{ name }}
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Transformed Sample Preview -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title"><i class="fa-solid fa-table"></i> Sample Normalized Feature Vectors (First 5 Rows)</h2>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    {% for name in feature_info.encoded_feature_names %}
+                        <th>{{ name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in feature_info.sample_transformed[:5] %}
+                    <tr>
+                        {% for name in feature_info.encoded_feature_names %}
+                            <td style="font-family: var(--font-mono);">{{ row.get(name) }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

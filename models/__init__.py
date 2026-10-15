@@ -1,0 +1,3 @@
+"""
+FreshChain Models Package
+"""

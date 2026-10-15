@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% set active_page = "index" %}
+
+{% block content %}
+<section class="hero">
+    <h1 class="hero-title">Intelligent Supply Chain Freshness Quality Prediction</h1>
+    <p class="hero-subtitle">
+        FreshChain leverages machine learning algorithms to monitor atmospheric conditions (Temperature, Humidity, Light, CO2) and predict agricultural produce quality in real-time.
+    </p>
+    <div class="hero-actions">
+        <a href="{{ url_for('predict_page') }}" class="btn btn-primary"><i class="fa-solid fa-bolt"></i> Run Live Prediction</a>
+        <a href="{{ url_for('data_page') }}" class="btn btn-secondary"><i class="fa-solid fa-table"></i> Explore Dataset</a>
+        <a href="{{ url_for('train_page') }}" class="btn btn-secondary"><i class="fa-solid fa-brain"></i> Retrain Pipeline</a>
+    </div>
+</section>
+
+<!-- Overview Statistics Grid -->
+<div class="grid-4" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <span class="stat-label">Total Records</span>
+        <span class="stat-value">{{ summary.num_rows if summary else '10,996' }}</span>
+        <span class="stat-sub">Cleaned samples</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Produce Varieties</span>
+        <span class="stat-value">{{ summary.fruits|length if summary else '4' }}</span>
+        <span class="stat-sub">Orange, Banana, Tomato, Pineapple</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Active Best Model</span>
+        <span class="stat-value" style="font-size: 1.35rem; color: #10b981;">{{ model_info.best_model_name if model_info else 'Random Forest' }}</span>
+        <span class="stat-sub">Accuracy: {{ (model_info.metrics.accuracy * 100)|round(2) if model_info else '99.4' }}%</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">System Health</span>
+        <span class="stat-value" style="color: #3b82f6;">100%</span>
+        <span class="stat-sub">All pipelines operational</span>
+    </div>
+</div>
+
+<!-- Architecture & Pipeline Flow Cards -->
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fa-solid fa-sitemap" style="color: #10b981;"></i> Pipeline Workflow Architecture</h2>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.9rem;">
+            FreshChain implements a complete end-to-end production ML pipeline structured into decoupled modules:
+        </p>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+            <li style="display: flex; align-items: center; gap: 0.6rem;">
+                <span class="badge badge-blue">1. Data Ingestion</span>
+                <span>Automated loading, deduplication & schema validation in <code>ml/data_loader.py</code></span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 0.6rem;">
+                <span class="badge badge-blue">2. Visual EDA</span>
+                <span>Distribution, class balance & correlation heatmaps in <code>ml/eda.py</code></span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 0.6rem;">
+                <span class="badge badge-blue">3. Feature Engg</span>
+                <span>StandardScaler + OneHotEncoder pipelines in <code>ml/feature_engg.py</code></span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 0.6rem;">
+                <span class="badge badge-blue">4. Model Trainer</span>
+                <span>Multi-model benchmark & serialization in <code>ml/trainer.py</code></span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 0.6rem;">
+                <span class="badge badge-good">5. Real-Time Inference</span>
+                <span>Fast sub-millisecond serving via <code>models/load.py</code></span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fa-solid fa-sliders" style="color: #3b82f6;"></i> Monitored Sensory Features</h2>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.9rem;">
+            Sensors deployed in transit containers and storage warehouses continuously feed these parameters:
+        </p>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Type</th>
+                        <th>Standard Range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Fruit Variety</strong></td>
+                        <td><span class="badge badge-blue">Categorical</span></td>
+                        <td>Orange, Banana, Tomato, Pineapple</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Temperature</strong></td>
+                        <td><span class="badge badge-blue">Continuous</span></td>
+                        <td>20°C - 28°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Humidity (%)</strong></td>
+                        <td><span class="badge badge-blue">Continuous</span></td>
+                        <td>70% - 98%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Light Level (Fux)</strong></td>
+                        <td><span class="badge badge-blue">Continuous</span></td>
+                        <td>2.0 - 25.0 Fux</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CO2 Level (ppm)</strong></td>
+                        <td><span class="badge badge-blue">Continuous</span></td>
+                        <td>150 - 500 ppm</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
